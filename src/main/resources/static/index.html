@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="fr" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <title>Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Notre CSS personnalisé -->
+    <link rel="stylesheet" href="chat.css" />
+</head>
+<body class="bg-body-tertiary">
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg bg-body navbar-dark border-bottom sticky-top shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold text-primary" href="#">Chat antsika</a>
+
+        <div class="d-flex align-items-center gap-2">
+            <span id="status-badge" class="badge text-bg-secondary">Déconnecté</span>
+
+            <button id="theme-toggle" class="btn btn-sm btn-outline-secondary" type="button">
+                <span id="theme-icon">🌙</span>
+            </button>
+
+            <button id="btn-logout" class="btn btn-sm btn-outline-danger d-none" type="button">
+                Déconnexion
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Section Login / Auth -->
+<section id="login-section" class="container py-5">
+    <div class="row justify-content-center align-items-center" style="min-height: 60vh;">
+        <div class="col-sm-10 col-md-6 col-lg-4">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <h4 class="card-title mb-4 text-center fw-bold">Bienvenue</h4>
+
+                    <!-- Formulaire d'authentification -->
+                    <form id="auth-form" class="vstack gap-3">
+
+                        <!-- Pseudo -->
+                        <div class="form-floating">
+                            <input id="username" name="username" type="text" class="form-control"
+                                   placeholder="Pseudo" required minlength="3" maxlength="20"
+                                   pattern="^[A-Za-z0-9_]{3,20}$" />
+                            <label for="username">Pseudo</label>
+                        </div>
+
+                        <!-- Mot de passe -->
+                        <div class="form-floating">
+                            <input id="password" name="password" type="password" class="form-control"
+                                   placeholder="Mot de passe" required minlength="4" />
+                            <label for="password">Mot de passe</label>
+                        </div>
+
+                        <!-- Bouton Connexion -->
+                        <div class="d-grid">
+                            <button id="btn-login" type="submit" class="btn btn-primary fw-bold">
+                                Connexion
+                            </button>
+                        </div>
+
+                        <!-- Liens inscription / reset -->
+                        <div class="text-center mt-2">
+                            <a href="#" class="link-primary fw-bold me-2"
+                               data-bs-toggle="modal" data-bs-target="#registerModal">
+                                Créer un compte
+                            </a>
+                            <span class="text-muted">·</span>
+                            <a href="#" class="link-secondary ms-2"
+                               data-bs-toggle="modal" data-bs-target="#forgotModal">
+                                Mot de passe oublié ?
+                            </a>
+                        </div>
+
+                        <div id="login-error" class="text-danger small text-center mt-2 fw-bold"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Chat (Cachée par défaut) -->
+<section id="chat-section" class="container-fluid py-3 d-none h-100">
+    <div class="row g-3 h-100">
+
+        <!-- Sidebar (Users & Channels) -->
+        <aside class="col-lg-3 d-flex flex-column gap-3" style="max-height: 90vh;">
+
+            <!-- Channels -->
+            <div class="card shadow-sm border-0 flex-grow-0">
+                <div class="card-header fw-bold bg-body-secondary">Canaux</div>
+                <ul id="conversations" class="list-group list-group-flush overflow-auto" style="max-height: 30vh;">
+                    <!-- Rempli par JS -->
+                </ul>
+            </div>
+
+            <!-- Users -->
+            <div class="card shadow-sm border-0 flex-fill">
+                <div class="card-header fw-bold bg-body-secondary d-flex justify-content-between align-items-center">
+                    <span>En ligne</span>
+                    <span class="badge rounded-pill bg-primary small" id="user-count">0</span>
+                </div>
+                <ul id="users" class="list-group list-group-flush overflow-auto" style="height: 100%;">
+                    <!-- Rempli par JS -->
+                </ul>
+            </div>
+
+        </aside>
+
+        <!-- Zone de messages -->
+        <div class="col-lg-9">
+            <div class="card shadow-sm border-0 h-100">
+
+                <!-- Header Conversation -->
+                <div class="card-header bg-body border-bottom py-3">
+                    <span class="fw-bold fs-5" id="current-conv-label"># Salon public</span>
+                </div>
+
+                <!-- Liste des messages -->
+                <ul id="messages" class="list-group list-group-flush overflow-auto bg-body-tertiary"
+                    style="height: 70vh; padding: 20px;">
+                    <!-- Rempli par JS -->
+                </ul>
+
+                <div id="reply-bar" class="d-none px-3 pt-3">
+                    <div class="reply-pill">
+                        <div class="reply-pill-left">
+                            <div class="reply-pill-title">
+                                Réponse à <span id="reply-to-user"></span>
+                            </div>
+                            <div id="reply-to-excerpt" class="reply-pill-excerpt"></div>
+                        </div>
+                        <button id="btn-cancel-reply" type="button" class="btn btn-sm btn-outline-secondary">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Zone -->
+                <div class="card-footer bg-body border-top p-3">
+                    <form id="msg-form" class="input-group input-group-lg">
+                        <input id="msg-input" type="text" class="form-control border-0 bg-body-tertiary rounded-start-pill ps-4"
+                               placeholder="Écrire un message..." autocomplete="off" />
+                        <button id="send-btn" type="submit" class="btn btn-primary rounded-end-pill px-4" disabled>
+                            ➤
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Toasts Notifications -->
+<div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+<!-- Modal Inscription -->
+<div class="modal fade" id="registerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Créer un compte</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="register-form" class="vstack gap-3">
+
+                    <div class="form-floating">
+                        <input id="register-username" type="text" class="form-control"
+                               placeholder="Pseudo" required minlength="3" maxlength="20"
+                               pattern="^[A-Za-z0-9_]{3,20}$" />
+                        <label for="register-username">Pseudo</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input id="register-email" type="email" class="form-control"
+                               placeholder="Email" required />
+                        <label for="register-email">Adresse e-mail</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input id="register-password" type="password" class="form-control"
+                               placeholder="Mot de passe" required minlength="4" />
+                        <label for="register-password">Mot de passe</label>
+                    </div>
+
+                    <div id="register-error" class="text-danger small text-center fw-bold"></div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary fw-bold">Créer un compte</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Mot de passe oublié -->
+<div class="modal fade" id="forgotModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Réinitialiser le mot de passe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="forgot-form" class="vstack gap-3">
+
+                    <!-- Email -->
+                    <div class="form-floating">
+                        <input id="forgot-email" type="email" class="form-control"
+                               placeholder="Email" required />
+                        <label for="forgot-email">Adresse e-mail</label>
+                    </div>
+
+                    <button id="btn-forgot-code" type="button" class="btn btn-outline-primary w-100">
+                        Envoyer le code de réinitialisation
+                    </button>
+
+                    <!-- Étape 2 : code + nouveau mot de passe -->
+                    <div id="forgot-step2" class="vstack gap-3 mt-2 d-none">
+                        <div class="form-floating">
+                            <input id="forgot-code" type="text" class="form-control"
+                                   placeholder="Code reçu" required minlength="4" maxlength="20" />
+                            <label for="forgot-code">Code reçu par e-mail</label>
+                        </div>
+
+                        <div class="form-floating">
+                            <input id="forgot-password" type="password" class="form-control"
+                                   placeholder="Nouveau mot de passe" required minlength="4" />
+                            <label for="forgot-password">Nouveau mot de passe</label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary fw-bold">
+                                Mettre à jour le mot de passe
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="forgot-error" class="text-danger small text-center fw-bold mt-2"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Edit message -->
+<div class="modal fade" id="editMessageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="edit-message-form">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier le message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-2">
+            <textarea id="edit-message-input" class="form-control" rows="4" maxlength="1000"
+                      placeholder="Votre message..."></textarea>
+                    </div>
+                    <div id="edit-message-error" class="text-danger small"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Confirm delete -->
+<div class="modal fade" id="deleteMessageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Supprimer le message ?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-0">Cette action est irréversible.</p>
+                <div id="delete-message-error" class="text-danger small mt-2"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" id="btn-confirm-delete-message" class="btn btn-danger">Supprimer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
